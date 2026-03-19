@@ -1,0 +1,11 @@
+{
+  "name": "riz",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "cf": "bun run .agents/skills/cyberk-flow/scripts/cf.ts"
+  },
+  "devDependencies": {
+    "@huggingface/transformers": "latest"
+  }
+}

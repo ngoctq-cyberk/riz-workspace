@@ -1,0 +1,13 @@
+
+# cyberk-flow
+.agents/skills/cyberk-flow
+.agents/rules/cyberk-flow/GEMINI.md
+.agents/workflows/cf-*
+.opencode/opencode.jsonc
+.opencode/plugins/cyberk-flow.ts
+.drafts
+cyberk-flow/memory.db*
+cyberk-flow/changes/**/.sessions
+session-ses_*
+
+node_modules

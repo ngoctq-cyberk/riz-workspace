@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "cyberk-flow": {
+      "source": "cyberk-dev/cyberk-skills",
+      "sourceType": "github",
+      "computedHash": "246aac0259a01745b045d979d6bfb90b1e5dd98facbc2432d14e0b005b7cb370"
+    },
+    "e2e-testing": {
+      "source": "cyberk-dev/cyberk-skills",
+      "sourceType": "github",
+      "computedHash": "05be8e39dc587c266a5ef159438410b6daca83827955fbd1dd23cec4186681ad"
+    },
+    "playwright-cli": {
+      "source": "cyberk-dev/cyberk-skills",
+      "sourceType": "github",
+      "computedHash": "7075ab30f588019197a2f1518bb4c9d33d69d33352af079b5f9c60303ad3886e"
+    }
+  }
+}

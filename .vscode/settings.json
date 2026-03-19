@@ -1,0 +1,56 @@
+{
+  "amp.mcpServers": {
+    "gkg": {
+      "type": "http",
+      "url": "http://localhost:27495/mcp",
+      "includeTools": [
+        "list_projects",
+        "repo_map",
+        "search_codebase_definitions",
+        "index_project",
+        "get_references",
+        "get_definition",
+        "read_definitions"
+      ]
+    },
+    "deepwiki": {
+      "url": "https://mcp.deepwiki.com/mcp"
+    },
+    "git-mcp": {
+      "url": "https://gitmcp.io/docs"
+    }
+  },
+  "amp.permissions": [
+    {
+      "tool": "Read",
+      "matches": {
+        "path": [
+          "*.env",
+          "*.env.*",
+          "**/.env",
+          "**/.env.*",
+          "**/secrets/**",
+          "**/*.pem",
+          "**/*.key"
+        ]
+      },
+      "action": "reject"
+    },
+    {
+      "tool": "Bash",
+      "matches": {
+        "cmd": [
+          "*cat*.env*",
+          "*less*.env*",
+          "*head*.env*",
+          "*tail*.env*",
+          "*echo*ENV*",
+          "*cat*secrets*",
+          "*cat*.pem*",
+          "*cat*.key*"
+        ]
+      },
+      "action": "reject"
+    }
+  ]
+}
