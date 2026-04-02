@@ -11,3 +11,6 @@ cyberk-flow/changes/**/.sessions
 session-ses_*
 
 node_modules
+dist-cert.p12
+profile.mobileprovision
+push_noti.mobileprovision
