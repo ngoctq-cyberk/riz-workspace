@@ -59,12 +59,12 @@
   - [ ] **🚪 Cổng: người dùng duyệt triển khai**
   - [ ] Trích xuất knowledge
 
-## Lưu trữ
+## Archive
 
-- [ ] Kiểm tra sự ổn định sau merge
-- [ ] Hồi cứu
-- [ ] Áp dụng delta: `cf_apply` <!-- auto-ticked by script -->
-- [ ] Lưu trữ change: `cf_archive` <!-- auto-ticked by script -->
+- [x] Kiểm tra sự ổn định sau merge
+- [x] Hồi cứu
+- [x] Apply deltas: `cf_apply` <!-- auto-ticked by script -->
+- [x] Archive change: `cf_archive` <!-- auto-ticked by script -->
 
 ## Ghi chú
 
@@ -73,6 +73,10 @@
 - **Stages bắt buộc**: Tất cả stages đều bắt buộc (Standard base + cờ nâng cấp yêu cầu Design & Specs)
 - **Spec đầu vào**: `docs/SPEC-framing-flat2d-v2.vi.md` — đặc tả sản phẩm chi tiết cho tính năng Flat2D Framing
 - **Quyết định**: Dùng local stub data cho cả scene templates và frame presets trong v1
+- **Hồi cứu**: 
+  - **Estimate vs Actual**: Appetite was L ≤ 2w, took ~2 ngày.
+  - **What worked**: Lên kiến trúc rõ ràng, dùng stub data cô lập rủi ro, phân loại dependencies tốt. Sử dụng store và hook chia layer FSD ổn định.
+  - **What to improve**: Việc trao đổi requirements về thiết kế frame (nine-slice) nên thống nhất chuẩn tài sản đầu vào trước lúc code để tránh bug cắt khung. Đảm bảo UI mockup đồng bộ logic render.
 
 ## Nhật ký sửa đổi
 
