@@ -201,6 +201,23 @@ Tất cả 3 projects đều sử dụng:
 - **Prettier** + **ESLint** integration
 - Lint-staged cho pre-commit hooks
 
+### Before Completing Coding Tasks
+
+**QUAN TRỌNG**: Sau khi hoàn thành coding (tạo/sửa file `.ts`, `.tsx`, `.js`, `.jsx`), PHẢI chạy lint fix trước khi kết thúc response:
+
+```bash
+# Cho riz-admin-fe
+cd riz-admin-fe && bunx eslint --fix <files>
+
+# Cho riz-app-v2  
+cd riz-app-v2 && bunx eslint --fix <files>
+
+# Cho riz-be
+cd riz-be && npx eslint --fix <files>
+```
+
+Chỉ chạy lint trên các files đã thay đổi trong task hiện tại. Review kết quả và fix nếu có lỗi còn lại.
+
 ## Cyberk Flow Workflow
 
 Khi implement hoặc resume một change:

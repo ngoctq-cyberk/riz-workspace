@@ -56,7 +56,10 @@
       "Bash(bun run:*)",
       "mcp__gitnexus__impact",
       "mcp__gitnexus__query",
-      "Bash(bunx eslint:*)"
+      "Bash(bunx eslint:*)",
+      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
+      "Bash(/Users/tranquyngoc/Documents/Cyberk/riz/.claude/hooks/lint-on-stop.sh:*)"
     ]
-  }
+  },
+  "hooks": {}
 }
