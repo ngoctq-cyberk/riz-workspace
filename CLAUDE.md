@@ -12,6 +12,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Mỗi dự án có package manager riêng và có thể develop độc lập.
 
+## Local Development Setup
+
+### Docker Services (required)
+
+```bash
+cd riz-be/apps/nest
+docker-compose up -d    # Start PostgreSQL + Redis
+docker-compose down     # Stop containers
+```
+
+| Container  | Port             | Mô tả         |
+| ---------- | ---------------- | ------------- |
+| `postgres` | `localhost:5403` | PostgreSQL 17 |
+| `redis`    | `localhost:6849` | Redis Stack   |
+
+### Service URLs
+
+| URL                          | Mô tả        |
+| ---------------------------- | ------------ |
+| `http://localhost:4000`      | Backend API  |
+| `http://localhost:4000/docs` | Swagger Docs |
+| `http://localhost:5173`      | Admin Panel  |
+
 ## Common Commands
 
 ### Backend (riz-be)
@@ -39,7 +62,9 @@ pnpm prisma:reset:local      # Reset DB + reseed (destructive)
 # Testing (inside apps/nest)
 pnpm test                    # Run all tests (.env.spec)
 pnpm test -- --testPathPattern="todo"  # Run single test file
+pnpm test -- --testNamePattern="Create" # Run tests matching name
 pnpm test:e2e               # Run e2e tests
+pnpm test:watch              # Watch mode
 ```
 
 **Environment Files** (trong `apps/nest/`):
@@ -47,6 +72,8 @@ pnpm test:e2e               # Run e2e tests
 - `.env.local`: Local development
 - `.env.spec`: Testing environment
 - `.env.dev`: Development/staging
+
+**QUAN TRỌNG**: KHÔNG BAO GIỜ đọc file `.env` — chúng là sensitive và gitignored. Sử dụng `.env.example` để tham khảo schema.
 
 ### Admin Frontend (riz-admin-fe)
 
@@ -128,242 +155,19 @@ Backend được tổ chức theo modular architecture với các domain librari
 
 **QUAN TRỌNG**: Hệ thống được thiết kế để nhiều users có thể connect và share cùng một profile. Hầu hết các business models sẽ relate tới `profile` thay vì `user`.
 
-### Prisma Schema Convention
-
-```typescript
-// Tất cả entities phải có:
-id         BigInt   @id @default(autoincrement())
-createdAt  DateTime @default(now())
-updatedAt  DateTime @updatedAt
-profileId  BigInt?  // Optional, related to profile
-```
-
-### Entity Structure
-
-Entities nằm trong `libs/*/entities/*.entity.ts`:
-
-```typescript
-import { Expose, Type } from "class-transformer";
-import { ApiProperty } from "@nestjs/swagger";
-
-export class TodoEntity {
-  @ApiProperty()
-  @Expose()
-  id: bigint;
-
-  @ApiProperty()
-  @Expose()
-  createdAt: Date;
-
-  @ApiProperty()
-  @Expose()
-  updatedAt: Date;
-
-  @ApiProperty()
-  @Expose()
-  title: string;
-
-  @ApiProperty()
-  @Expose()
-  profileId: bigint;
-
-  // Relations section (at bottom)
-  @ApiProperty({ type: () => ProfileEntity })
-  @Type(() => ProfileEntity)
-  @Expose()
-  profile: ProfileEntity;
-}
-```
-
-### DTO Conventions
-
-**Create DTO** (`create-*.dto.ts`):
-
-- Không cần `profileId` field (sẽ lấy từ user)
-- Có validation decorators (class-validator)
-- Có ApiProperty decorators
-
-**Update DTO** (`edit-*.dto.ts`):
-
-- Sử dụng `PickType` để pick fields từ CreateDTO
-- Sử dụng `PartialType` để make optional
-
-```typescript
-import { PartialType, PickType } from "@nestjs/swagger";
-import { CreateTodoDto } from "./create-todo.dto";
-
-class _UpdateTodoDto extends PickType(CreateTodoDto, [
-  "title",
-  "description",
-]) {}
-export class UpdateTodoDto extends PartialType(_UpdateTodoDto) {}
-```
-
-**Query DTO** (`query-*.dto.ts`):
-
-- Hỗ trợ where, sort, select, include, skip, take
-- Number fields phải có `@Type(() => Number)`
-
-### Service Layer
-
-Services phải include `user` parameter trong create/update/delete methods:
-
-```typescript
-async createTodo(dto: CreateTodoDto, user: User) {
-  const todo = await this.prisma.todo.create({
-    data: {
-      ...dto,
-      profileId: user.profileId, // Attach to user's profile
-    },
-  })
-  return th.toInstanceSafe(TodoEntity, todo)
-}
-
-async updateTodo(id: bigint, dto: UpdateTodoDto, user: User) {
-  return await this.prisma.todo.update({
-    where: { id, profileId: user.profileId }, // Security: only update own data
-    data: dto,
-  })
-}
-```
+@.claude/conventions/backend-patterns.md
 
 ### Testing Conventions
 
-- Sử dụng Jest framework
-- Follow Arrange-Act-Assert pattern
-- Naming: `inputX`, `mockX`, `actualX`, `expectedX`
-- Write unit tests for public functions
-- Write e2e tests for each API module
-- Test file pattern: `*.spec.ts`
-
-```bash
-# Chạy từ riz-be/apps/nest
-pnpm test                              # Chạy tất cả tests
-pnpm test -- --testPathPattern="todo"  # Chạy tests có "todo" trong path
-pnpm test -- --testNamePattern="Create" # Chạy tests có "Create" trong tên
-pnpm test:watch                        # Watch mode
-```
+@.claude/conventions/testing-patterns.md
 
 ## Admin Frontend Architecture (riz-admin-fe)
 
-### Tech Stack
-
-- **Framework**: React 19 với TypeScript
-- **Build Tool**: Vite 6
-- **Package Manager**: Bun
-- **Routing**: TanStack Router (file-based routing)
-- **State Management**:
-  - TanStack Query (server state với IndexedDB persistence)
-  - Zustand (client state với localStorage persistence)
-- **Styling**: Tailwind CSS v4
-- **UI Components**: Radix UI + Shadcn/ui
-- **Forms**: React Hook Form + Zod validation
-- **HTTP Client**: Axios với token refresh interceptors
-- **i18n**: React Intl
-
-### Routing Structure
-
-File-based routing với TanStack Router trong `src/routes/`:
-
-- `__root.tsx`: Root layout với NavigationProgress, Toaster, Devtools
-- `_authenticated/`: Layout route cho protected pages
-- `(auth)/`: Auth route group (sign-in, OAuth callbacks)
-- `(errors)/`: Error pages (401, 403, 404, 500, 503)
-
-Routes tự động generate vào `routeTree.gen.ts` bởi Vite plugin.
-
-### State Management
-
-**Zustand (Client State)**:
-
-- `auth.store.ts`: Quản lý accessToken/refreshToken, persist to localStorage
-- Custom pattern với `createControlledStore` wrapper
-- Hooks: `useIsAuthenticated`, `useAccessToken`, `useRefreshToken`
-
-**TanStack Query (Server State)**:
-
-- Query caching với IndexedDB persistence (via idb-keyval)
-- Global error handling trong query cache
-- Auto retry (disabled cho 401/403)
-- 10s default stale time
-
-**Token Refresh Service**:
-
-- Proactive token refresh (check expiration trước requests)
-- Axios interceptors cho automatic retry on 401
-- Integrated với Zustand auth store
-
-### Folder Structure
-
-```
-src/
-├── components/          # Reusable UI components
-│   ├── ui/             # Shadcn UI components
-│   └── layout/         # Layout components (AuthenticatedLayout, AppSidebar)
-├── features/           # Feature-based modules (domain-driven)
-│   ├── auth/
-│   ├── dashboard/
-│   └── errors/
-├── routes/            # File-based routing
-├── stores/            # Zustand stores
-├── integrations/      # Third-party integrations (TanStack Query, React Intl)
-├── lib/               # Shared libraries (axios, utils)
-├── context/           # React Context (theme, search)
-└── hooks/             # Custom React hooks
-```
+@.claude/conventions/admin-fe-patterns.md
 
 ## Mobile App Architecture (riz-app-v2)
 
-### Tech Stack
-
-- **Framework**: React Native với Expo ~54.0
-- **Routing**: Expo Router (file-based)
-- **Styling**: TailwindCSS + NativeWind v4
-- **State Management**: Zustand + TanStack Query
-- **UI**: React Native Reusables, Lucide icons
-- **Forms**: React Hook Form + Zod
-- **Animations**: React Native Reanimated ~4.1
-- **3D Graphics**: Three.js + React Three Fiber + React Three Drei
-- **Media**: Expo Image, Expo Video, Shopify Skia
-- **Storage**: MMKV + Expo Secure Store
-- **Package Manager**: Bun v1.3.5
-
-### Navigation Structure
-
-File-based routing với Expo Router trong `app/`:
-
-- `_layout.tsx`: Root layout với providers (GestureHandler, QueryProvider, ThemeProvider)
-- `(protected)/`: Protected routes với authentication guard
-- `onboarding/`: Onboarding flow
-- `profile/`: Profile routes
-- `settings/`: Settings routes
-
-Protected routes redirect to `/login` nếu chưa authenticated.
-
-### Key Features
-
-1. **Feed System**: Masonry grid layout với category filtering
-2. **Community/Social**: Post creation, comments, reactions, bookmarks
-3. **Creator Studio**: Project management dashboard
-4. **Project Creation**: 2D và 3D project creation (Three.js integration)
-5. **Profile System**: User profiles với tabs (Works, Saved, Services, About)
-6. **Onboarding**: Email + OTP authentication flow
-7. **Media Management**: Camera roll, image cropping, video upload
-
-### Folder Structure
-
-```
-app/                    # Expo Router routes
-screens/               # Screen implementations
-components/            # Reusable UI components
-lib/                   # Core libraries (api, storage, constants, 3d)
-hooks/                 # Custom React hooks
-services/              # Business logic services
-store/                 # Zustand stores
-types/                 # TypeScript types
-utils/                 # Utility functions
-integrations/          # Third-party integrations
-```
+@.claude/conventions/app-patterns.md
 
 ## Development Guidelines
 
@@ -382,6 +186,12 @@ integrations/          # Third-party integrations
 - Prefer modular architecture
 - Keep components focused và single-responsibility
 
+### Exception Handling
+
+- Use exceptions cho unexpected errors
+- Khi catch exception, chỉ để: fix expected problem, add context, hoặc dùng global handler
+- Backend có global filters trong `libs/core/` cho exception handling
+
 ### Git Workflow
 
 Tất cả 3 projects đều sử dụng:
@@ -390,3 +200,113 @@ Tất cả 3 projects đều sử dụng:
 - **Commitlint** với conventional commits
 - **Prettier** + **ESLint** integration
 - Lint-staged cho pre-commit hooks
+
+## Cyberk Flow Workflow
+
+Khi implement hoặc resume một change:
+
+1. Kiểm tra `cyberk-flow/changes/` cho existing change directories (`bun run cf changes`)
+2. Nếu có matching change, đọc `workflow.md` để xác định current gate/state
+3. Resume từ correct gate — `workflow.md` trên disk là source of truth, KHÔNG phải conversation history
+
+<!-- gitnexus:start -->
+# GitNexus — Code Intelligence
+
+This project is indexed by GitNexus as **riz** (476914 symbols, 711980 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+
+> If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
+
+## Always Do
+
+- **MUST run impact analysis before editing any symbol.** Before modifying a function, class, or method, run `gitnexus_impact({target: "symbolName", direction: "upstream"})` and report the blast radius (direct callers, affected processes, risk level) to the user.
+- **MUST run `gitnexus_detect_changes()` before committing** to verify your changes only affect expected symbols and execution flows.
+- **MUST warn the user** if impact analysis returns HIGH or CRITICAL risk before proceeding with edits.
+- When exploring unfamiliar code, use `gitnexus_query({query: "concept"})` to find execution flows instead of grepping. It returns process-grouped results ranked by relevance.
+- When you need full context on a specific symbol — callers, callees, which execution flows it participates in — use `gitnexus_context({name: "symbolName"})`.
+
+## When Debugging
+
+1. `gitnexus_query({query: "<error or symptom>"})` — find execution flows related to the issue
+2. `gitnexus_context({name: "<suspect function>"})` — see all callers, callees, and process participation
+3. `READ gitnexus://repo/riz/process/{processName}` — trace the full execution flow step by step
+4. For regressions: `gitnexus_detect_changes({scope: "compare", base_ref: "main"})` — see what your branch changed
+
+## When Refactoring
+
+- **Renaming**: MUST use `gitnexus_rename({symbol_name: "old", new_name: "new", dry_run: true})` first. Review the preview — graph edits are safe, text_search edits need manual review. Then run with `dry_run: false`.
+- **Extracting/Splitting**: MUST run `gitnexus_context({name: "target"})` to see all incoming/outgoing refs, then `gitnexus_impact({target: "target", direction: "upstream"})` to find all external callers before moving code.
+- After any refactor: run `gitnexus_detect_changes({scope: "all"})` to verify only expected files changed.
+
+## Never Do
+
+- NEVER edit a function, class, or method without first running `gitnexus_impact` on it.
+- NEVER ignore HIGH or CRITICAL risk warnings from impact analysis.
+- NEVER rename symbols with find-and-replace — use `gitnexus_rename` which understands the call graph.
+- NEVER commit changes without running `gitnexus_detect_changes()` to check affected scope.
+
+## Tools Quick Reference
+
+| Tool | When to use | Command |
+|------|-------------|---------|
+| `query` | Find code by concept | `gitnexus_query({query: "auth validation"})` |
+| `context` | 360-degree view of one symbol | `gitnexus_context({name: "validateUser"})` |
+| `impact` | Blast radius before editing | `gitnexus_impact({target: "X", direction: "upstream"})` |
+| `detect_changes` | Pre-commit scope check | `gitnexus_detect_changes({scope: "staged"})` |
+| `rename` | Safe multi-file rename | `gitnexus_rename({symbol_name: "old", new_name: "new", dry_run: true})` |
+| `cypher` | Custom graph queries | `gitnexus_cypher({query: "MATCH ..."})` |
+
+## Impact Risk Levels
+
+| Depth | Meaning | Action |
+|-------|---------|--------|
+| d=1 | WILL BREAK — direct callers/importers | MUST update these |
+| d=2 | LIKELY AFFECTED — indirect deps | Should test |
+| d=3 | MAY NEED TESTING — transitive | Test if critical path |
+
+## Resources
+
+| Resource | Use for |
+|----------|---------|
+| `gitnexus://repo/riz/context` | Codebase overview, check index freshness |
+| `gitnexus://repo/riz/clusters` | All functional areas |
+| `gitnexus://repo/riz/processes` | All execution flows |
+| `gitnexus://repo/riz/process/{name}` | Step-by-step execution trace |
+
+## Self-Check Before Finishing
+
+Before completing any code modification task, verify:
+1. `gitnexus_impact` was run for all modified symbols
+2. No HIGH/CRITICAL risk warnings were ignored
+3. `gitnexus_detect_changes()` confirms changes match expected scope
+4. All d=1 (WILL BREAK) dependents were updated
+
+## Keeping the Index Fresh
+
+After committing code changes, the GitNexus index becomes stale. Re-run analyze to update it:
+
+```bash
+npx gitnexus analyze
+```
+
+If the index previously included embeddings, preserve them by adding `--embeddings`:
+
+```bash
+npx gitnexus analyze --embeddings
+```
+
+To check whether embeddings exist, inspect `.gitnexus/meta.json` — the `stats.embeddings` field shows the count (0 means no embeddings). **Running analyze without `--embeddings` will delete any previously generated embeddings.**
+
+> Claude Code users: A PostToolUse hook handles this automatically after `git commit` and `git merge`.
+
+## CLI
+
+| Task | Read this skill file |
+|------|---------------------|
+| Understand architecture / "How does X work?" | `.claude/skills/gitnexus/gitnexus-exploring/SKILL.md` |
+| Blast radius / "What breaks if I change X?" | `.claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md` |
+| Trace bugs / "Why is X failing?" | `.claude/skills/gitnexus/gitnexus-debugging/SKILL.md` |
+| Rename / extract / split / refactor | `.claude/skills/gitnexus/gitnexus-refactoring/SKILL.md` |
+| Tools, resources, schema reference | `.claude/skills/gitnexus/gitnexus-guide/SKILL.md` |
+| Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
+
+<!-- gitnexus:end -->

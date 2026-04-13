@@ -50,7 +50,13 @@
       "Bash(xcode-select -p:*)",
       "Bash(xcodebuild -version:*)",
       "Bash(npx expo run:ios:*)",
-      "Bash(pnpm build:*)"
+      "Bash(pnpm build:*)",
+      "Bash(ls:*)",
+      "Bash(grep -E \"\\\\.ts$\")",
+      "Bash(bun run:*)",
+      "mcp__gitnexus__impact",
+      "mcp__gitnexus__query",
+      "Bash(bunx eslint:*)"
     ]
   }
 }

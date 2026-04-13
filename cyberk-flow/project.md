@@ -19,3 +19,4 @@ A full-stack monorepo featuring a NestJS backend configured for AWS Lambda, a Re
 - **Type check**: `npx tsc --noEmit` / `bun check`
 - **Test**: `pnpm test` (backend), `bun test` (frontend)
 - **E2E**: `pnpm test:e2e` (backend)
+- **Deploy**: AWS CDK (`riz-be/apps/cdk`), EAS Build (`riz-app-v2`)

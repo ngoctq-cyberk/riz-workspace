@@ -14,3 +14,8 @@ node_modules
 dist-cert.p12
 profile.mobileprovision
 push_noti.mobileprovision
+
+# cyberk-flow
+.agents/rules/cyberk-flow
+.opencode/agents
+.gitnexus
