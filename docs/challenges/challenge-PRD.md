@@ -133,7 +133,7 @@ Challenge
 ├── coverImageUrl         String?
 ├── startsAt              DateTime
 ├── endsAt                DateTime
-├── status                ChallengeStatus    // DRAFT | ACTIVE | ENDED | ARCHIVED
+├── status                ChallengeStatus    // DRAFT | ACTIVE | ARCHIVED (phase "ended" là derived từ endsAt < now, không lưu DB)
 ├── categoryId            Int               // FK → ProjectCategory
 ├── subcategoryId         Int?              // FK → ProjectSubcategory
 ├── createdByUserId       BigInt            // FK → User (admin đã tạo)

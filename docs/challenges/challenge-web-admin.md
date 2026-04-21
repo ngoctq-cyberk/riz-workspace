@@ -25,7 +25,7 @@ Tiêu chí chấp nhận (đã implement trên web admin + BE):
 
 - [x] Leader điền được: tiêu đề, mô tả, mục tiêu, yêu cầu, luật chơi
 - [x] Leader upload được ảnh bìa challenge (multipart/form-data, field: coverImage)
-- [x] Leader chọn được ngày bắt đầu (startDate) và ngày kết thúc (endDate)
+- [x] Leader chọn được thời điểm bắt đầu (`startsAt`) và thời điểm kết thúc (`endsAt`) — ISO 8601 datetime (UTC); admin picks datetime theo locale thiết bị của mình, FE convert sang UTC khi gửi API
 - [x] Leader chọn được danh mục feed (feedCategory → categoryId, kiểu int)
 - [x] Leader chọn được danh mục con (subCategory → subcategoryId) — tùy chọn
 - [x] Challenge mới được tạo với status mặc định là `DRAFT`
@@ -98,12 +98,12 @@ Tiêu chí chấp nhận (BE đã implement):
   "requirements": "string",
   "rules": "string",
   "coverImageUrl": "string",
-  "startDate": "date",
-  "endDate": "date",
+  "startsAt": "datetime (ISO 8601, UTC)",
+  "endsAt": "datetime (ISO 8601, UTC)",
   "feedCategory": 1,
   "subCategory": 3,
   "awardCategories": [{ "id": "string", "name": "string" }],
-  "status": "DRAFT | ACTIVE | ENDED | ARCHIVED",
+  "status": "DRAFT | ACTIVE | ARCHIVED",
   "submissionCount": 0,
   "memberCount": 0,
   "createdAt": "datetime",

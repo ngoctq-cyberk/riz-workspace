@@ -4,9 +4,9 @@
 | ----------- | ---------------- |
 | Nguồn       | challenge-PRD.md |
 | Ngày tạo    | 2026-04-08       |
-| Cập nhật    | 2026-04-13       |
-| Phiên bản   | 1.3              |
-| Trạng thái  | Synced with current code |
+| Cập nhật    | 2026-04-20       |
+| Phiên bản   | 1.4              |
+| Trạng thái  | Synced with current code (Round 7 reviewer fixes) |
 
 ---
 
@@ -21,7 +21,7 @@
 **Tiêu chí chấp nhận** (đã implement):
 - [x] Leader điền được: tiêu đề, mô tả, mục tiêu, yêu cầu, luật chơi
 - [x] Leader upload được ảnh bìa challenge (multipart/form-data)
-- [x] Leader chọn được ngày bắt đầu và ngày kết thúc
+- [x] Leader chọn được thời điểm bắt đầu (`startsAt`) và thời điểm kết thúc (`endsAt`) dưới dạng datetime theo locale của thiết bị admin. FE convert sang ISO 8601 UTC khi gửi API. User ở múi giờ khác sẽ thấy timeline dịch theo device TZ của họ.
 - [x] Leader chọn được danh mục feed (categoryId → ProjectCategory)
 - [x] Leader chọn được danh mục con (subcategoryId → ProjectSubcategory) — tùy chọn
 - [x] Leader có thể tạo các hạng mục giải thưởng (awardCategories)
@@ -114,7 +114,7 @@
 - [ ] Tab Challenge hiển thị như menu item top-level, ngang hàng Feed / Create / AI Chat / Community (FE cần làm)
 - [x] Danh sách challenge hiển thị: ảnh bìa, tiêu đề, thời gian, số submission, số member
 - [x] Không cần đăng nhập để xem danh sách
-- [x] API: `GET /challenges` với pagination và filter status
+- [x] API: `GET /challenges` với pagination, filter `status` (`DRAFT`/`ACTIVE`/`ARCHIVED`) và `phase` (`upcoming`/`ongoing`/`ended` — derived từ `startsAt`/`endsAt` so với `now`, không phải status lưu DB)
 
 ---
 
