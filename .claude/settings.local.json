@@ -78,7 +78,10 @@
       "mcp__figma-mcp-go__get_local_components",
       "mcp__figma-mcp-go__get_variable_defs",
       "mcp__figma-mcp-go__export_tokens",
-      "mcp__figma-mcp-go__get_nodes_info"
+      "mcp__figma-mcp-go__get_nodes_info",
+      "Bash(cp .claude/skills/debate-review/templates/finding-schema.md \".debate-review/2026-04-29-0534-e81f30/finding-schema.md\")",
+      "Bash(git -C riz-app-v2 log -1 --pretty=\"%h %s\")",
+      "Bash(git -C riz-be log -1 --pretty=\"%h %s\")"
     ]
   },
   "enabledMcpjsonServers": [

@@ -1,0 +1,581 @@
+# ============================================================
+# REPO: riz-app-v2 (React Native Expo mobile app)
+# Working tree: HEAD vs current (staged + unstaged)
+# ============================================================
+
+diff --git a/.gitignore b/.gitignore
+index 192cfdf..01c01b0 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -57,3 +57,4 @@ expo-env.d.ts
+ # iOS signing credentials (sensitive — do not commit)
+ credentials.json
+ ios/credentials/
++.gitnexus
+diff --git a/AGENTS.md b/AGENTS.md
+new file mode 100644
+index 0000000..f2b5a84
+--- /dev/null
++++ b/AGENTS.md
+@@ -0,0 +1,101 @@
++<!-- gitnexus:start -->
++# GitNexus — Code Intelligence
++
++This project is indexed by GitNexus as **riz-app-v2** (3128 symbols, 5832 relationships, 121 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
++
++> If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
++
++## Always Do
++
++- **MUST run impact analysis before editing any symbol.** Before modifying a function, class, or method, run `gitnexus_impact({target: "symbolName", direction: "upstream"})` and report the blast radius (direct callers, affected processes, risk level) to the user.
++- **MUST run `gitnexus_detect_changes()` before committing** to verify your changes only affect expected symbols and execution flows.
++- **MUST warn the user** if impact analysis returns HIGH or CRITICAL risk before proceeding with edits.
++- When exploring unfamiliar code, use `gitnexus_query({query: "concept"})` to find execution flows instead of grepping. It returns process-grouped results ranked by relevance.
++- When you need full context on a specific symbol — callers, callees, which execution flows it participates in — use `gitnexus_context({name: "symbolName"})`.
++
++## When Debugging
++
++1. `gitnexus_query({query: "<error or symptom>"})` — find execution flows related to the issue
++2. `gitnexus_context({name: "<suspect function>"})` — see all callers, callees, and process participation
++3. `READ gitnexus://repo/riz-app-v2/process/{processName}` — trace the full execution flow step by step
++4. For regressions: `gitnexus_detect_changes({scope: "compare", base_ref: "main"})` — see what your branch changed
++
++## When Refactoring
++
++- **Renaming**: MUST use `gitnexus_rename({symbol_name: "old", new_name: "new", dry_run: true})` first. Review the preview — graph edits are safe, text_search edits need manual review. Then run with `dry_run: false`.
++- **Extracting/Splitting**: MUST run `gitnexus_context({name: "target"})` to see all incoming/outgoing refs, then `gitnexus_impact({target: "target", direction: "upstream"})` to find all external callers before moving code.
++- After any refactor: run `gitnexus_detect_changes({scope: "all"})` to verify only expected files changed.
++
++## Never Do
++
++- NEVER edit a function, class, or method without first running `gitnexus_impact` on it.
++- NEVER ignore HIGH or CRITICAL risk warnings from impact analysis.
++- NEVER rename symbols with find-and-replace — use `gitnexus_rename` which understands the call graph.
++- NEVER commit changes without running `gitnexus_detect_changes()` to check affected scope.
++
++## Tools Quick Reference
++
++| Tool | When to use | Command |
++|------|-------------|---------|
++| `query` | Find code by concept | `gitnexus_query({query: "auth validation"})` |
++| `context` | 360-degree view of one symbol | `gitnexus_context({name: "validateUser"})` |
++| `impact` | Blast radius before editing | `gitnexus_impact({target: "X", direction: "upstream"})` |
++| `detect_changes` | Pre-commit scope check | `gitnexus_detect_changes({scope: "staged"})` |
++| `rename` | Safe multi-file rename | `gitnexus_rename({symbol_name: "old", new_name: "new", dry_run: true})` |
++| `cypher` | Custom graph queries | `gitnexus_cypher({query: "MATCH ..."})` |
++
++## Impact Risk Levels
++
++| Depth | Meaning | Action |
++|-------|---------|--------|
++| d=1 | WILL BREAK — direct callers/importers | MUST update these |
++| d=2 | LIKELY AFFECTED — indirect deps | Should test |
++| d=3 | MAY NEED TESTING — transitive | Test if critical path |
++
++## Resources
++
++| Resource | Use for |
++|----------|---------|
++| `gitnexus://repo/riz-app-v2/context` | Codebase overview, check index freshness |
++| `gitnexus://repo/riz-app-v2/clusters` | All functional areas |
++| `gitnexus://repo/riz-app-v2/processes` | All execution flows |
++| `gitnexus://repo/riz-app-v2/process/{name}` | Step-by-step execution trace |
++
++## Self-Check Before Finishing
++
++Before completing any code modification task, verify:
++1. `gitnexus_impact` was run for all modified symbols
++2. No HIGH/CRITICAL risk warnings were ignored
++3. `gitnexus_detect_changes()` confirms changes match expected scope
++4. All d=1 (WILL BREAK) dependents were updated
++
++## Keeping the Index Fresh
++
++After committing code changes, the GitNexus index becomes stale. Re-run analyze to update it:
++
++```bash
++npx gitnexus analyze
++```
++
++If the index previously included embeddings, preserve them by adding `--embeddings`:
++
++```bash
++npx gitnexus analyze --embeddings
++```
++
++To check whether embeddings exist, inspect `.gitnexus/meta.json` — the `stats.embeddings` field shows the count (0 means no embeddings). **Running analyze without `--embeddings` will delete any previously generated embeddings.**
++
++> Claude Code users: A PostToolUse hook handles this automatically after `git commit` and `git merge`.
++
++## CLI
++
++| Task | Read this skill file |
++|------|---------------------|
++| Understand architecture / "How does X work?" | `.claude/skills/gitnexus/gitnexus-exploring/SKILL.md` |
++| Blast radius / "What breaks if I change X?" | `.claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md` |
++| Trace bugs / "Why is X failing?" | `.claude/skills/gitnexus/gitnexus-debugging/SKILL.md` |
++| Rename / extract / split / refactor | `.claude/skills/gitnexus/gitnexus-refactoring/SKILL.md` |
++| Tools, resources, schema reference | `.claude/skills/gitnexus/gitnexus-guide/SKILL.md` |
++| Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
++
++<!-- gitnexus:end -->
+\ No newline at end of file
+diff --git a/CLAUDE.md b/CLAUDE.md
+new file mode 100644
+index 0000000..f2b5a84
+--- /dev/null
++++ b/CLAUDE.md
+@@ -0,0 +1,101 @@
++<!-- gitnexus:start -->
++# GitNexus — Code Intelligence
++
++This project is indexed by GitNexus as **riz-app-v2** (3128 symbols, 5832 relationships, 121 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
++
++> If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
++
++## Always Do
++
++- **MUST run impact analysis before editing any symbol.** Before modifying a function, class, or method, run `gitnexus_impact({target: "symbolName", direction: "upstream"})` and report the blast radius (direct callers, affected processes, risk level) to the user.
++- **MUST run `gitnexus_detect_changes()` before committing** to verify your changes only affect expected symbols and execution flows.
++- **MUST warn the user** if impact analysis returns HIGH or CRITICAL risk before proceeding with edits.
++- When exploring unfamiliar code, use `gitnexus_query({query: "concept"})` to find execution flows instead of grepping. It returns process-grouped results ranked by relevance.
++- When you need full context on a specific symbol — callers, callees, which execution flows it participates in — use `gitnexus_context({name: "symbolName"})`.
++
++## When Debugging
++
++1. `gitnexus_query({query: "<error or symptom>"})` — find execution flows related to the issue
++2. `gitnexus_context({name: "<suspect function>"})` — see all callers, callees, and process participation
++3. `READ gitnexus://repo/riz-app-v2/process/{processName}` — trace the full execution flow step by step
++4. For regressions: `gitnexus_detect_changes({scope: "compare", base_ref: "main"})` — see what your branch changed
++
++## When Refactoring
++
++- **Renaming**: MUST use `gitnexus_rename({symbol_name: "old", new_name: "new", dry_run: true})` first. Review the preview — graph edits are safe, text_search edits need manual review. Then run with `dry_run: false`.
++- **Extracting/Splitting**: MUST run `gitnexus_context({name: "target"})` to see all incoming/outgoing refs, then `gitnexus_impact({target: "target", direction: "upstream"})` to find all external callers before moving code.
++- After any refactor: run `gitnexus_detect_changes({scope: "all"})` to verify only expected files changed.
++
++## Never Do
++
++- NEVER edit a function, class, or method without first running `gitnexus_impact` on it.
++- NEVER ignore HIGH or CRITICAL risk warnings from impact analysis.
++- NEVER rename symbols with find-and-replace — use `gitnexus_rename` which understands the call graph.
++- NEVER commit changes without running `gitnexus_detect_changes()` to check affected scope.
++
++## Tools Quick Reference
++
++| Tool | When to use | Command |
++|------|-------------|---------|
++| `query` | Find code by concept | `gitnexus_query({query: "auth validation"})` |
++| `context` | 360-degree view of one symbol | `gitnexus_context({name: "validateUser"})` |
++| `impact` | Blast radius before editing | `gitnexus_impact({target: "X", direction: "upstream"})` |
++| `detect_changes` | Pre-commit scope check | `gitnexus_detect_changes({scope: "staged"})` |
++| `rename` | Safe multi-file rename | `gitnexus_rename({symbol_name: "old", new_name: "new", dry_run: true})` |
++| `cypher` | Custom graph queries | `gitnexus_cypher({query: "MATCH ..."})` |
++
++## Impact Risk Levels
++
++| Depth | Meaning | Action |
++|-------|---------|--------|
++| d=1 | WILL BREAK — direct callers/importers | MUST update these |
++| d=2 | LIKELY AFFECTED — indirect deps | Should test |
++| d=3 | MAY NEED TESTING — transitive | Test if critical path |
++
++## Resources
++
++| Resource | Use for |
++|----------|---------|
++| `gitnexus://repo/riz-app-v2/context` | Codebase overview, check index freshness |
++| `gitnexus://repo/riz-app-v2/clusters` | All functional areas |
++| `gitnexus://repo/riz-app-v2/processes` | All execution flows |
++| `gitnexus://repo/riz-app-v2/process/{name}` | Step-by-step execution trace |
++
++## Self-Check Before Finishing
++
++Before completing any code modification task, verify:
++1. `gitnexus_impact` was run for all modified symbols
++2. No HIGH/CRITICAL risk warnings were ignored
++3. `gitnexus_detect_changes()` confirms changes match expected scope
++4. All d=1 (WILL BREAK) dependents were updated
++
++## Keeping the Index Fresh
++
++After committing code changes, the GitNexus index becomes stale. Re-run analyze to update it:
++
++```bash
++npx gitnexus analyze
++```
++
++If the index previously included embeddings, preserve them by adding `--embeddings`:
++
++```bash
++npx gitnexus analyze --embeddings
++```
++
++To check whether embeddings exist, inspect `.gitnexus/meta.json` — the `stats.embeddings` field shows the count (0 means no embeddings). **Running analyze without `--embeddings` will delete any previously generated embeddings.**
++
++> Claude Code users: A PostToolUse hook handles this automatically after `git commit` and `git merge`.
++
++## CLI
++
++| Task | Read this skill file |
++|------|---------------------|
++| Understand architecture / "How does X work?" | `.claude/skills/gitnexus/gitnexus-exploring/SKILL.md` |
++| Blast radius / "What breaks if I change X?" | `.claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md` |
++| Trace bugs / "Why is X failing?" | `.claude/skills/gitnexus/gitnexus-debugging/SKILL.md` |
++| Rename / extract / split / refactor | `.claude/skills/gitnexus/gitnexus-refactoring/SKILL.md` |
++| Tools, resources, schema reference | `.claude/skills/gitnexus/gitnexus-guide/SKILL.md` |
++| Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
++
++<!-- gitnexus:end -->
+\ No newline at end of file
+diff --git a/lib/api/projects/types.ts b/lib/api/projects/types.ts
+index 3213746..b01af7e 100644
+--- a/lib/api/projects/types.ts
++++ b/lib/api/projects/types.ts
+@@ -99,6 +99,7 @@ export interface ProjectImage {
+   width: number | null;
+   height: number | null;
+   aspectRatio: number | null;
++  type?: "IMAGE" | "VIDEO";
+ }
+ 
+ export interface ProjectChallengeSubmission {
+@@ -132,6 +133,7 @@ export interface ProjectResponse {
+   isSaved?: boolean;
+   author: Profile;
+   images: ProjectImage[];
++  hasVideo?: boolean;
+   primaryImageUrl?: string;
+   wallImages?: ProjectWallImage[];
+   challengeSubmission?: ProjectChallengeSubmission | null;
+diff --git a/screens/art-feed/components/project-feed-item.tsx b/screens/art-feed/components/project-feed-item.tsx
+index fc4a903..daa060e 100644
+--- a/screens/art-feed/components/project-feed-item.tsx
++++ b/screens/art-feed/components/project-feed-item.tsx
+@@ -2,7 +2,7 @@ import { Text } from "@/components/ui/text";
+ import { ExpandableText } from "@/screens/community/components/expandable-text";
+ import { projectsApi, type ProjectResponse } from "@/lib/api/projects";
+ import { EllipsisVertical } from "lucide-react-native";
+-import React, { useState, useCallback } from "react";
++import React, { useState, useCallback, useEffect } from "react";
+ import { FormattedMessage } from "react-intl";
+ import { Pressable, View, Dimensions } from "react-native";
+ import { UserAvatar } from "@/components/user-avatar";
+@@ -56,18 +56,34 @@ export const ProjectFeedItem = ({
+     String(currentUserProfileId) === String(project.author.id);
+   const showMenu = isAuthor && (onEdit || onDelete);
+ 
++  const [isVideoActive, setIsVideoActive] = useState(false);
++
++  useEffect(() => {
++    setIsVideoActive(false);
++  }, [project.id]);
++
+   // Convert project images to MediaItem format
+   const mediaItems: MediaItem[] = (project.images ?? []).map((img) => ({
+     id: img.id,
+-    type: "image" as const,
+-    url: img.url,
+-    mediumUrl: img.mediumUrl,
++    type: img.type === "VIDEO" ? ("video" as const) : ("image" as const),
++    // For video: mediumUrl is the HLS URL (preferred), fall back to url
++    url: img.type === "VIDEO" ? (img.mediumUrl ?? img.url) : img.url,
++    mediumUrl: img.type === "VIDEO" ? undefined : img.mediumUrl,
+     thumbnailUrl: img.thumbnailUrl,
+     width: img.width ?? undefined,
+     height: img.height ?? undefined,
+     aspectRatio: img.aspectRatio ?? undefined,
+   }));
+ 
++  const handleItemPress = useCallback(
++    (idx: number) => {
++      if (mediaItems[idx]?.type === "video") {
++        setIsVideoActive(true);
++      }
++    },
++    [mediaItems]
++  );
++
+   // Like functionality with optimistic updates
+   const {
+     isReacted,
+@@ -173,7 +189,8 @@ export const ProjectFeedItem = ({
+           <MediaCarousel
+             media={mediaItems}
+             containerWidth={SCREEN_WIDTH}
+-            isVideoActive={false}
++            isVideoActive={isVideoActive}
++            onItemPress={handleItemPress}
+             maxVisibleDots={10}
+           />
+         )}
+diff --git a/screens/feed/components/main/feed-item.tsx b/screens/feed/components/main/feed-item.tsx
+index 3503461..fc6f8a6 100644
+--- a/screens/feed/components/main/feed-item.tsx
++++ b/screens/feed/components/main/feed-item.tsx
+@@ -6,6 +6,7 @@ import { BookmarkIcon } from "@/components/icons";
+ import { ChallengeBadge } from "@/components/challenge-badge";
+ import type { MasonryItemData } from "../../types/types";
+ import { Image } from "expo-image";
++import { Play } from "lucide-react-native";
+ 
+ interface FeedItemProps {
+   item: MasonryItemData;
+@@ -50,6 +51,13 @@ export const FeedItem = React.memo(
+           cachePolicy="memory-disk"
+         />
+         <Pressable onPress={handlePress} className="flex-1">
++          {item.hasVideo && (
++            <View className="absolute inset-0 items-center justify-center">
++              <View className="h-8 w-8 items-center justify-center rounded-full bg-black/50">
++                <Play size={14} color="#fff" fill="#fff" />
++              </View>
++            </View>
++          )}
+           <View className="relative z-[1] flex-1 justify-between p-2">
+             <View className="flex-row items-start justify-between">
+               {item.challengeSubmission ? <ChallengeBadge /> : <View />}
+diff --git a/screens/feed/helper/transform.ts b/screens/feed/helper/transform.ts
+index 4627c22..66c5202 100644
+--- a/screens/feed/helper/transform.ts
++++ b/screens/feed/helper/transform.ts
+@@ -9,10 +9,26 @@ import { Profile } from "@/lib/api/_shared/profile";
+ export function transformProjectToMasonryItem(
+   project: ProjectResponse
+ ): MasonryItemData | null {
+-  // Skip projects without images
+-  const firstImage = project.images?.[0];
+-  const imageUrl =
+-    firstImage?.mediumUrl || firstImage?.url || project.primaryImageUrl;
++  const images = project.images ?? [];
++  const hasVideo = project.hasVideo ?? images.some((i) => i.type === "VIDEO");
++
++  // Prefer first non-video image for cover; fall back to first video's thumbnailUrl
++  const firstNonVideo = images.find((i) => i.type !== "VIDEO") ?? null;
++  const firstVideo = images.find((i) => i.type === "VIDEO") ?? null;
++
++  let imageUrl: string | undefined;
++  let coverAspectRatio: number | undefined;
++
++  if (firstNonVideo) {
++    imageUrl = firstNonVideo.mediumUrl || firstNonVideo.url || undefined;
++    coverAspectRatio = firstNonVideo.aspectRatio ?? undefined;
++  } else if (firstVideo) {
++    imageUrl = firstVideo.thumbnailUrl || undefined;
++    coverAspectRatio = firstVideo.aspectRatio ?? undefined;
++  } else {
++    imageUrl = project.primaryImageUrl || undefined;
++  }
++
+   if (!imageUrl) {
+     return null;
+   }
+@@ -29,7 +45,8 @@ export function transformProjectToMasonryItem(
+     imageUrl,
+     author,
+     isSaved: project.isSaved || false,
+-    aspectRatio: firstImage?.aspectRatio || 1,
++    aspectRatio: coverAspectRatio || 1,
++    hasVideo,
+     challengeSubmission: project.challengeSubmission
+       ? {
+           challengeId: project.challengeSubmission.challengeId,
+diff --git a/screens/feed/types/types.ts b/screens/feed/types/types.ts
+index bac7ba6..3bfdb9f 100644
+--- a/screens/feed/types/types.ts
++++ b/screens/feed/types/types.ts
+@@ -28,6 +28,7 @@ export interface MasonryItemData {
+   author: Profile;
+   isSaved: boolean;
+   aspectRatio?: number;
++  hasVideo: boolean;
+   challengeSubmission?: {
+     challengeId: string;
+     challengeTitle: string;
+diff --git a/utils/format-challenge-count.ts b/utils/format-challenge-count.ts
+index 5728d91..be32551 100644
+--- a/utils/format-challenge-count.ts
++++ b/utils/format-challenge-count.ts
+@@ -24,4 +24,4 @@ export function formatChallengeCount(
+     },
+     { count: safeCount }
+   );
+-}
+\ No newline at end of file
++}
+diff --git a/utils/format-challenge-countdown.ts b/utils/format-challenge-countdown.ts
+index 01431f0..8877de3 100644
+--- a/utils/format-challenge-countdown.ts
++++ b/utils/format-challenge-countdown.ts
+@@ -21,4 +21,4 @@ export function formatChallengeCountdown(
+     },
+     { value: countdown.value }
+   );
+-}
+\ No newline at end of file
++}
+
+# ============================================================
+# REPO: riz-be (NestJS backend monorepo)
+# Working tree: HEAD vs current (staged + unstaged)
+# ============================================================
+
+diff --git a/apps/nest/libs/project/src/admin-trending.service.ts b/apps/nest/libs/project/src/admin-trending.service.ts
+index afef3fc..7e11433 100644
+--- a/apps/nest/libs/project/src/admin-trending.service.ts
++++ b/apps/nest/libs/project/src/admin-trending.service.ts
+@@ -7,7 +7,7 @@ import {
+   ForbiddenException,
+ } from '@nestjs/common'
+ import { PrismaService } from 'nestjs-prisma'
+-import { Prisma, MediaUsage, User, Role, ProjectStatus } from '@prisma/client'
++import { Prisma, MediaUsage, MediaType, User, Role, ProjectStatus } from '@prisma/client'
+ import { generateKeyBetween } from 'fractional-indexing'
+ import { th } from '@app/helper/transform.helper'
+ import { CACHE_MANAGER } from '@nestjs/cache-manager'
+@@ -280,6 +280,11 @@ export class AdminTrendingService {
+                   orderBy: { order: 'asc' },
+                   take: 1,
+                 },
++                _count: {
++                  select: {
++                    attachments: { where: { type: MediaType.VIDEO, usage: MediaUsage.PROJECT_IMAGE } },
++                  },
++                },
+               },
+             },
+           },
+@@ -515,6 +520,11 @@ export class AdminTrendingService {
+                   orderBy: { order: 'asc' },
+                   take: 1,
+                 },
++                _count: {
++                  select: {
++                    attachments: { where: { type: MediaType.VIDEO, usage: MediaUsage.PROJECT_IMAGE } },
++                  },
++                },
+               },
+             },
+             challengeSubmission: {
+@@ -550,6 +560,11 @@ export class AdminTrendingService {
+                 orderBy: { order: 'asc' },
+                 take: 1,
+               },
++              _count: {
++                select: {
++                  attachments: { where: { type: MediaType.VIDEO, usage: MediaUsage.PROJECT_IMAGE } },
++                },
++              },
+             },
+           },
+           challengeSubmission: {
+@@ -647,6 +662,11 @@ export class AdminTrendingService {
+               orderBy: { order: 'asc' },
+               take: 1,
+             },
++            _count: {
++              select: {
++                attachments: { where: { type: MediaType.VIDEO, usage: MediaUsage.PROJECT_IMAGE } },
++              },
++            },
+           },
+         },
+         challengeSubmission: {
+@@ -873,6 +893,11 @@ export class AdminTrendingService {
+               orderBy: { order: 'asc' },
+               take: 1,
+             },
++            _count: {
++              select: {
++                attachments: { where: { type: MediaType.VIDEO, usage: MediaUsage.PROJECT_IMAGE } },
++              },
++            },
+           },
+         },
+       },
+diff --git a/apps/nest/libs/project/src/entities/project.entity.ts b/apps/nest/libs/project/src/entities/project.entity.ts
+index ec5c089..9e4aaad 100644
+--- a/apps/nest/libs/project/src/entities/project.entity.ts
++++ b/apps/nest/libs/project/src/entities/project.entity.ts
+@@ -1,7 +1,14 @@
+ import { Expose, Type, Transform } from 'class-transformer'
+ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+ import { ProfileEntity } from '@app/profile/entities/profile.entity'
+-import { ArtworkSaleType, ChallengeSubmissionStatus, ProjectStatus, ProjectType, WallDirection } from '@prisma/client'
++import {
++  ArtworkSaleType,
++  ChallengeSubmissionStatus,
++  MediaType,
++  ProjectStatus,
++  ProjectType,
++  WallDirection,
++} from '@prisma/client'
+ import { MediaMetadataDto } from '@app/core/dtos/media-metadata.dto'
+ 
+ export class ProjectChallengeSubmissionEntity {
+@@ -87,6 +94,10 @@ export class ProjectImageEntity {
+   @ApiPropertyOptional({ description: 'Image aspect ratio (width/height)' })
+   @Expose()
+   aspectRatio: number | null
++
++  @ApiPropertyOptional({ enum: MediaType, description: 'Media type (IMAGE or VIDEO)' })
++  @Expose()
++  type: MediaType | null
+ }
+ 
+ export class ProjectWallImageEntity {
+@@ -222,6 +233,10 @@ export class ProjectEntity {
+   @Expose()
+   inTrending?: boolean
+ 
++  @ApiPropertyOptional({ description: 'Whether project has at least one video attachment' })
++  @Expose()
++  hasVideo?: boolean
++
+   // Relations
+   @ApiProperty({ type: () => ProfileEntity })
+   @Type(() => ProfileEntity)
+diff --git a/apps/nest/libs/project/src/helpers/project-mapper.helper.ts b/apps/nest/libs/project/src/helpers/project-mapper.helper.ts
+index d41e2b4..bba930b 100644
+--- a/apps/nest/libs/project/src/helpers/project-mapper.helper.ts
++++ b/apps/nest/libs/project/src/helpers/project-mapper.helper.ts
+@@ -1,4 +1,4 @@
+-import { ChallengeSubmissionStatus, Prisma } from '@prisma/client'
++import { ChallengeSubmissionStatus, MediaType, Prisma } from '@prisma/client'
+ 
+ export type ProjectWithRelations = Prisma.ProjectGetPayload<{
+   include: {
+@@ -15,6 +15,7 @@ export type ProjectWithRelations = Prisma.ProjectGetPayload<{
+   global: {
+     bookmarks?: { id: bigint }[] | false
+     reactions?: { id: bigint }[] | false
++    _count?: { attachments: number }
+   }
+   challengeSubmission?: {
+     challengeId: bigint
+@@ -57,6 +58,7 @@ export interface MappedProjectData {
+     width: number | null
+     height: number | null
+     aspectRatio: number | null
++    type: MediaType | null
+   }>
+   primaryImageUrl: string | null
+   likeCount: number
+@@ -65,6 +67,7 @@ export interface MappedProjectData {
+   engagementScore: number
+   featured: boolean
+   inTrending: boolean
++  hasVideo: boolean
+   isSaved: boolean
+   isReacted: boolean
+   challengeSubmission: {
+@@ -117,7 +120,9 @@ export class ProjectMapperHelper {
+         width: media.width,
+         height: media.height,
+         aspectRatio: media.width && media.height ? media.width / media.height : null,
++        type: media.type,
+       })),
++      hasVideo: (project.global._count?.attachments ?? 0) > 0,
+       primaryImageUrl: project.global.attachments[0]?.url ?? null,
+       likeCount: project.global.likeCount,
+       commentCount: project.global.commentCount,
