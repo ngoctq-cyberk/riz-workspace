@@ -1,5 +1,12 @@
 # Backend Patterns
 
+## Scoring
+
+- **1 like = 1 điểm. Comment và bookmark KHÔNG tính score.**
+- Sort organic feed (`AdminTrendingService`) và challenge submissions (`ChallengeService.getChallengeSubmissions`) theo `Global.likeCount` trực tiếp.
+- Field `Global.engagementScore` đã deprecated cho mục đích rank — vẫn tồn tại trong DB & response để backwards compatibility, nhưng listeners không còn cập nhật giá trị từ comment.
+- Khi thêm endpoint sort/rank mới: dùng `likeCount`, không dùng `engagementScore`.
+
 ## Prisma Schema Convention
 
 ```typescript
